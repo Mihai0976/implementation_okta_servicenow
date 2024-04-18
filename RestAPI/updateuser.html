@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update User</title>
+    <style>
+        .required {
+            border-color: red;
+            background-color: lightcoral;
+        }
+
+        .required::placeholder {
+            color: red;
+
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            width: 100%;
+            /* Adjust width as needed */
+            background-color: #f9f9f9;
+            border-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            margin-left: 20px;
+        }
+
+        input {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-left: 20px;
+        }
+
+        select {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-left: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        /* Container for heading and image */
+        .heading-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .heading-container button:hover {
+            color: #4CAF50;
+            background-color: rgb(32, 28, 28);
+        }
+
+        /* Style for the image */
+        .logo {
+            width: 90px;
+            margin: 20px;
+        }
+
+        .required-label:after {
+            content: "*";
+            color: red;
+        }
+
+        #response {
+            color: white;
+            background-color: #4CAF50;
+            width: 50%;
+            padding: 8px;
+            text-align: center;
+            height: 18px;
+            border-radius: 4px;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-left: 20%;
+            display: none;
+        }
+
+        .user_menu {
+            display: flex;
+            /* Use flexbox */
+            justify-content: flex-start;
+            margin-left: 20px;
+            background-color: #ccc;
+            width: 211px;
+            border-radius: 4px;
+        }
+
+        .user_up_add {
+
+            margin: 0px 1px 0px 0px;
+            background-color: #a7a4a4;
+            color: black;
+            margin-bottom: 0;
+            border-radius: 0px 0px 4px 4px;
+        }
+
+        .user_up_add:hover {
+            background-color: #a7a4a4b4;
+            color: rgba(255, 255, 255, 0.699);
+        }
+
+        .page_div {
+            width: 100%;
+            align-self: center;
+            margin-left: 25%;
+            background-color: #f9f9f9;
+            margin-right: 25%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_div">
+        <div class="user_menu">
+            <a href="/"><button type="menu" class="user_up_add">Add User</button></a>
+            <a href="/updateuser"><button type="menu" class="user_up_add">Update user</button></a>
+        </div>
+        <!-- Form -->
+        <form id="updateUserForm" novalidate>
+
+            <!-- Container for heading and image -->
+            <div class="heading-container">
+                <!-- Heading -->
+                <h1 style="margin-left: 20px;">Update user</h1>
+                <!-- Image -->
+                <img src="resources/advanialogo.png" alt="Logo" class="logo">
+            </div>
+            <label for="user" class="required-label">Select a user:</label>
+            <select name="user" id="user">
+                <option value="" selected disabled>Select a user</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.displayName }}</option>
+                {% endfor %}
+            </select>
+            <label for="department">Department:</label>
+            <input type="text" id="department" name="department" required><br><br>
+            <label for="id" class="required-label">Id:</label>
+            <input type="text" id="id" name="id" required><br><br>
+            <label for="active" class="required-label">Active:</label>
+            <select id="active" name="avtive" required>
+                <option value="" selected disabled>Chose state</option>
+                <option value="false">False</option>
+                <option value="true">True</option>
+            </select><br><br>
+
+            <div class="heading-container">
+                <button type="submit">Update user state</button>
+                <img src="resources/oktalogo.jpg" alt="Logo" class="logo">
+            </div>
+            <div id="response"></div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Remove the "required" styling when the input field has a value
+            document.getElementById('id').addEventListener('input', function () {
+                var userId = this.value;
+                document.getElementById('id').value = userId;
+
+                // Remove the "required" styling from the ID field
+                document.getElementById('id').classList.remove("required");
+            });
+
+            // Remove the "required" styling from the ID field when a user is selected
+            document.getElementById('user').addEventListener('change', function () {
+                document.getElementById('id').classList.remove("required");
+            });
+
+            // Remove the "required" styling when the select field has a value
+            document.getElementById('active').addEventListener('change', function () {
+                var active = this.value.trim(); // Trim whitespace
+                if (active) {
+                    this.classList.remove("required");
+                } else {
+                    this.classList.add("required");
+                }
+            });
+
+            // Listen for changes in the select dropdown
+            document.getElementById('user').addEventListener('change', function () {
+                // Update the hidden input field with the selected user's ID
+                var userId = this.value;
+                document.getElementById('id').value = userId;
+
+                // Make an asynchronous request to the server to get the department for the selected user
+                fetch('/get_department/' + userId)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate the department field with the retrieved department value
+                        document.getElementById('department').value = data.department;
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+
+            // Submit the form when the "Update user state" button is clicked
+            document.getElementById('updateUserForm').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                // Get form data
+                var id = document.getElementById('id').value;
+                var active = document.getElementById('active').value;
+                var department = document.getElementById('department').value;
+                var isValid = true;
+                if (!id) {
+                    document.getElementById('id').classList.add("required");
+                    document.getElementById('id').placeholder = "Required Field";
+                    isValid = false;
+                } else {
+                    document.getElementById('id').classList.remove("required");
+                }
+
+                // Validate the "Active" field
+                if (!active) {
+                    document.getElementById('active').classList.add("required");
+                    document.getElementById('active').selectedIndex = 0; // Reset to default
+                    isValid = false;
+                } else {
+                    document.getElementById('active').classList.remove("required");
+                }
+
+                // If any field is invalid, don't submit the form
+                if (!isValid) {
+                    return;
+                }
+                // Create a JSON object with the form data
+                var formData = {
+                    id: id,
+                    active: active,
+                    department: department
+                };
+
+                // Send a PATCH request to the server
+                fetch('/updateuser', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Failed to update user state');
+                        }
+                    })
+                    .then(data => {
+                        // Handle the successful response
+                        document.getElementById('response').innerHTML = data.message;
+                        document.getElementById('response').style.display = 'block';
+                        // Hide the message after 7 seconds
+                        setTimeout(function () {
+                            document.getElementById('response').style.display = 'none';
+                        }, 7000); // 7000 milliseconds = 7 seconds
+                    })
+                    .catch(error => {
+                        // Handle errors
+                        console.error('Error:', error);
+                        document.getElementById('response').innerHTML = 'Error: ' + error.message;
+                        document.getElementById('response').style.display = 'block';
+                    });
+            });
+        });
+
+    </script>
+
+
+</body>
+
+</html>

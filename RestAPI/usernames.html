@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Names</title>
+</head>
+<body>
+    <h1>User Names</h1>
+    <form action="/user-info" method="GET">
+        <label for="user">Select a user:</label>
+        <select name="user" id="user">
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.displayName }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Update state</button>
+    </form>
+</body>
+</html>
